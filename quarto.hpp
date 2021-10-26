@@ -8,6 +8,7 @@
 
 /*---- LOCAL FILE ----*/
 #include "constant.hpp"
+#include "server.hpp"
 
 class Quarto {
     public:
@@ -15,6 +16,9 @@ class Quarto {
 
     private:
     Status _status;
+    
+    // SERVER
+    Server _server;
 };
 
 #endif // __QUARTO_HPP__
