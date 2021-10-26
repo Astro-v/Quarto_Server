@@ -6,15 +6,18 @@
     ################ END ################
 */
 
-// LIBRARY
+/*---- LIBRARY ----*/
 #include <iostream>
 
-// SFML
+/*---- LIBRARY SFML ----*/
 
-// LOCAL FILE
+/*---- LOCAL FILE ----*/
+#include "quarto.hpp"
+#include "constant.hpp"
 
 using namespace std;
 
 int main(){
+    Quarto quarto;
     return 0;
 }
