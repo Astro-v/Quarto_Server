@@ -13,12 +13,17 @@
 class Quarto {
     public:
     Quarto();
+    void play();
 
     private:
+    // GAME
     Status _status;
+    bool _play;
     
     // SERVER
     Server _server;
+    ToReceive _receive;
+	ToSend _send;
 };
 
 #endif // __QUARTO_HPP__
