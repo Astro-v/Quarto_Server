@@ -14,11 +14,14 @@ class Quarto {
     public:
     Quarto();
     void play();
+    void receive();
 
     private:
     // GAME
     Status _status;
     bool _play;
+    int _posX[NUMBER_PIECES];
+    int _posY[NUMBER_PIECES];
     
     // SERVER
     Server _server;
