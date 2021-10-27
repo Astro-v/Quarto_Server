@@ -10,18 +10,23 @@
 #include "constant.hpp"
 #include "server.hpp"
 
-class Quarto {
+class Quarto{
     public:
     Quarto();
     void play();
-    void receive();
+    
 
     private:
+    // METHOD
+    bool isPlacable(int posX, int posY) const;
+    bool isPickable(int posX, int posY) const;
+    int picked(int posX, int posY) const;
     // GAME
     Status _status;
     bool _play;
     int _posX[NUMBER_PIECES];
     int _posY[NUMBER_PIECES];
+    int _pick; // Correspond to the picked piece -1:NONE
     
     // SERVER
     Server _server;

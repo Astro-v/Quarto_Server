@@ -8,38 +8,96 @@
 #include "constant.hpp"
 
 Quarto::Quarto():_status(PLAYER_1_PICK),_play(true){
+	for (int index=0;index<NUMBER_PIECES;++index){
+		_posX[index]=index/NUMBER_ROW;
+		_posY[index]=index%NUMBER_COLUMN;
+	}
+	_pick = NONE;
 }
 
 void Quarto::play(){
-    std::cout << "Starting ..." << std::endl;
+    std::cout << "Initializing server ..." << std::endl;
     _server.initialize();
+	std::cout << "Starting ..." << std::endl;
     while (_play){
 
 		// Receive data
-		receive();
-
-		// Update data
-
-		// Send updated data
-		_server.sendData(1,_send);
-		_server.sendData(2,_send);
+		int player(_server.receiveData(_receive));
+		if (player != 0){
+			if (player == 1 && _status == PLAYER_1_PICK && isPickable(_receive.posX,_receive.posY)){
+				// Update data
+				_status = PLAYER_2_PLACE;
+				_pick = picked(_receive.posX,_receive.posY);
+				_send.status = _status;
+				_send.pick = _pick;
+				
+				// Send updated data
+				_server.sendData(_send);
+			}else if (player == 2 && _status == PLAYER_2_PLACE && isPlacable(_receive.posX,_receive.posY)){
+				// Update data
+				_status = PLAYER_2_PLACE;
+				_posX[_pick] = _receive.posX;
+				_posY[_pick] = _receive.posY;
+				_send.status = _status;
+				_send.posX = _posX;
+				_send.posY = _posY;
+				_send.pick = _pick;
+				
+				// Send updated data
+				_server.sendData(_send);
+			}else if (player == 2 && _status == PLAYER_2_PICK && isPickable(_receive.posX,_receive.posY)){
+				// Update data
+				_status = PLAYER_1_PLACE;
+				_pick = picked(_receive.posX,_receive.posY);
+				_send.status = _status;
+				_send.pick = _pick;
+				
+				// Send updated data
+				_server.sendData(_send);
+			}else if (player == 1 && _status == PLAYER_1_PLACE && isPlacable(_receive.posX,_receive.posY)){
+				// Update data
+				_status = PLAYER_2_PLACE;
+				_posX[_pick] = _receive.posX;
+				_posY[_pick] = _receive.posY;
+				_send.status = _status;
+				_send.posX = _posX;
+				_send.posY = _posY;
+				_send.pick = _pick;
+				
+				// Send updated data
+				_server.sendData(_send);
+			}else{
+				// Nothing to do
+			}
+		}else{
+			// erreur
+		}
     }
 }
 
-void Quarto::receive(){
-	// Receive information
-	switch (_server.receiveData(_receive))
-	{
-		case 1: // player 1 move
-			m_mutex.lock();
-
-			m_mutex.unlock();
-			break;
-		case 2: // player 2 move
-			m_mutex.lock();
-			
-			m_mutex.unlock();
-			break;
-		// default: // no data received
+bool Quarto::isPickable(int posX, int posY) const{
+	for (int index=0;index<NUMBER_PIECES;++index){
+		if (_posX[index] == posX && _posY[index] == posY){
+			return true;
+		} 
 	}
+	return false;
+}
+
+int picked(int posX, int posY) const{
+	for (int index=0;index<NUMBER_PIECES;++index){
+		if (_posX[index] == posX && _posY[index] == posY){
+			return index;
+		} 
+	}
+	return -1;
+}
+
+bool Quarto::isPlacable(int posX, int posY) const{
+	for (int index=0;index<NUMBER_PIECES;++index){
+		if (_posX[index] == posX && _posY[index] == posY)){
+			return false;
+		} 
+	}
+	return true;
 }

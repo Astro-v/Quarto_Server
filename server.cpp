@@ -40,30 +40,48 @@ void Server::initialize(){
 		}
 		_packetR.clear();
 	}
-
-	_packetS.clear();
-	ToSend data = {PLAYER_1_PICK};
-	_packetS << data;
-	_socket.send(_packetS,_addressP1,_portP1);
-	_socket.send(_packetS,_addressP2,_portP2);
-	_packetS.clear();
-
 	_socket.setBlocking(false);
 }
 
+/*
+Return :
+-1 : Not the good sender
+0 : Nothing have been send
+1 : P1 have send
+2 : P2 have send
+*/
+int Server::receiveData(ToReceive &data)
+{
+	_packetR.clear();
+	if (_socket.receive(_packetR,_addressClient,_portClient) == sf::Socket::Done)
+	{
+		_packetR >> data;
+		_packetR.clear();
+		if (_addressClient == _addressP1 && _portClient == _portP1)
+		{
+			return 1;
+		}
+		else if (_addressClient == _addressP2 && _portClient == _portP2)
+		{
+			return 2;
+		}
+		else
+		{
+			// Not the good sender
+			return -1;
+		}
+	}
+	else
+	{
+		return 0; // No data received
+	}
+}
 
-void Server::sendData(const int &i, const ToSend &data){
+void Server::sendData(const ToSend &data){
 	_packetS.clear();
 	_packetS << data;
-	switch (i){
-		case 1: // send to the player 1
-			_socket.send(_packetS, _addressP1, _portP1);
-			break;
-		case 2: // send to the player 2
-			_socket.send(_packetS, _addressP2, _portP2);
-			break;
-		// default: // error
-	}
+	_socket.send(_packetS, _addressP1, _portP1);
+	_socket.send(_packetS, _addressP2, _portP2);
 	_packetS.clear();
 }
 
