@@ -39,8 +39,10 @@ void Quarto::play(){
 				_posX[_pick] = _receive.posX;
 				_posY[_pick] = _receive.posY;
 				_send.status = _status;
-				_send.posX = _posX;
-				_send.posY = _posY;
+				for (int index=0;index<NUMBER_PIECES;++index){
+					_send.posX[index] = _posX[index];
+					_send.posY[index] = _posY[index];
+				}
 				_send.pick = _pick;
 				
 				// Send updated data
@@ -60,8 +62,10 @@ void Quarto::play(){
 				_posX[_pick] = _receive.posX;
 				_posY[_pick] = _receive.posY;
 				_send.status = _status;
-				_send.posX = _posX;
-				_send.posY = _posY;
+				for (int index=0;index<NUMBER_PIECES;++index){
+					_send.posX[index] = _posX[index];
+					_send.posY[index] = _posY[index];
+				}
 				_send.pick = _pick;
 				
 				// Send updated data
@@ -84,7 +88,7 @@ bool Quarto::isPickable(int posX, int posY) const{
 	return false;
 }
 
-int picked(int posX, int posY) const{
+int Quarto::picked(int posX, int posY) const{
 	for (int index=0;index<NUMBER_PIECES;++index){
 		if (_posX[index] == posX && _posY[index] == posY){
 			return index;
@@ -95,7 +99,7 @@ int picked(int posX, int posY) const{
 
 bool Quarto::isPlacable(int posX, int posY) const{
 	for (int index=0;index<NUMBER_PIECES;++index){
-		if (_posX[index] == posX && _posY[index] == posY)){
+		if (_posX[index] == posX && _posY[index] == posY){
 			return false;
 		} 
 	}

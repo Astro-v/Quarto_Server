@@ -16,7 +16,7 @@
 
 /*---- SERVER ----*/
 #define SERVER_PORT 5500	
-#define SERVER_ADRESS "90.39.145.229" // IP adress of the server
+#define SERVER_ADRESS sf::IpAddress::getLocalAddress() // IP adress of the server
 
 /*---- STATUS ----*/
 enum Status{
@@ -36,6 +36,6 @@ struct ToSend{
 struct ToReceive{
     int posX;
     int posY;
-}
+};
 
 #endif // __CONSTANT_HPP__

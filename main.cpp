@@ -19,5 +19,6 @@ using namespace std;
 
 int main(){
     Quarto quarto;
+    quarto.play();
     return 0;
 }

@@ -2,6 +2,7 @@
 #include <iostream>
 
 /*---- LIBRARY SFML ----*/
+#include "SFML/Network.hpp"
 
 /*---- LOCAL FILE ----*/
 #include "constant.hpp"
@@ -85,10 +86,17 @@ void Server::sendData(const ToSend &data){
 	_packetS.clear();
 }
 
-sf::Packet& operator <<(sf::Packet& packet, const ToSend& data){
-    return packet << data.posP1 << data.posP2 << data.posBallX << data.posBallY << data.sizeBarP1 << data.sizeBarP2 << data.scoreP1 << data.scoreP2 << data.winner << data.sound << data.bonus1PosX << data.bonus1PosY << data.bonus1Id << data.bonus2PosX << data.bonus2PosY << data.bonus2Id << data.bonus3PosX << data.bonus3PosY << data.bonus3Id<< data.bonus4PosX << data.bonus4PosY << data.bonus4Id << data.bonus5PosX << data.bonus5PosY << data.bonus5Id << data.bonus6PosX << data.bonus6PosY << data.bonus6Id;
+sf::Packet& operator <<(sf::Packet& packet, const ToSend& data){    
+	packet << data.status;
+    for (int index=0;index<NUMBER_PIECES;++index){
+    	packet << data.posX[index];
+    }
+    for (int index=0;index<NUMBER_PIECES;++index){
+    	packet << data.posY[index];
+    }
+    return packet << data.pick;
 }
 
 sf::Packet& operator >>(sf::Packet& packet, ToReceive& data){
-    return packet >> data.pos;
+    return packet >> data.posX >> data.posY;
 }

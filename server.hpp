@@ -15,7 +15,7 @@ class Server {
     Server();
     void initialize();
     int receiveData(ToReceive &data);
-	void sendData(const int &i,const ToSend &data);
+	void sendData(const ToSend &data);
 
     private:
     sf::UdpSocket _socket;

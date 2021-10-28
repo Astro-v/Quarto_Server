@@ -18,19 +18,20 @@ class Quarto{
 
     private:
     // METHOD
-    bool isPlacable(int posX, int posY) const;
-    bool isPickable(int posX, int posY) const;
-    int picked(int posX, int posY) const;
+    bool isPlacable(int posX, int posY) const;   // Return true if the given position car receive a piece
+    bool isPickable(int posX, int posY) const;   // Return true if the picked piece is pickable
+    int picked(int posX, int posY) const;        // Return the picked piece
+
     // GAME
-    Status _status;
-    bool _play;
-    int _posX[NUMBER_PIECES];
-    int _posY[NUMBER_PIECES];
-    int _pick; // Correspond to the picked piece -1:NONE
+    Status _status;                               // Status of the game
+    bool _play;                                   // Booleen that worth true as long as no one win
+    int _posX[NUMBER_PIECES];                     // Abscissa of the pieces
+    int _posY[NUMBER_PIECES];                     // Ordinate of the pieces
+    int _pick;                                    // Correspond to the picked piece -1:NONE
     
     // SERVER
-    Server _server;
-    ToReceive _receive;
+    Server _server;                               // Server that allow to communicate with client
+    ToReceive _receive;              
 	ToSend _send;
 };
 
