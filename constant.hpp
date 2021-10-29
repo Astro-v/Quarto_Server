@@ -29,6 +29,7 @@ struct ToSend{
     Status status;
     int posX[NUMBER_PIECES];
     int posY[NUMBER_PIECES];
+    bool used[NUMBER_PIECES];
     int pick;
 };
 

@@ -19,7 +19,7 @@ Server::Server(){
 /*
 Wait until the two player connect to the server
 */
-void Server::initialize(){
+void Server::initialize(const ToSend &dataS){
 	std::cout << "waiting for 2 players ..." << std::endl;
 	_socket.setBlocking(true);
 	int nbrPlayer(0);
@@ -41,6 +41,8 @@ void Server::initialize(){
 		}
 		_packetR.clear();
 	}
+
+	sendData(dataS);
 	_socket.setBlocking(false);
 }
 
@@ -80,19 +82,34 @@ int Server::receiveData(ToReceive &data)
 
 void Server::sendData(const ToSend &data){
 	_packetS.clear();
-	_packetS << data;
+	_packetS << data.status << data;
 	_socket.send(_packetS, _addressP1, _portP1);
+	_packetS.clear();
+	if (data.status == PLAYER_1_PICK){
+		_packetS << PLAYER_2_PICK;
+	}else if (data.status == PLAYER_2_PICK){
+		_packetS << PLAYER_1_PICK;
+	}else if (data.status == PLAYER_1_PLACE){
+		_packetS << PLAYER_2_PLACE;
+	}else if (data.status == PLAYER_2_PLACE){
+		_packetS << PLAYER_1_PLACE;
+	}else{
+		_packetS << data.status;
+	}
+	_packetS << data;
 	_socket.send(_packetS, _addressP2, _portP2);
 	_packetS.clear();
 }
 
-sf::Packet& operator <<(sf::Packet& packet, const ToSend& data){    
-	packet << data.status;
+sf::Packet& operator <<(sf::Packet& packet, const ToSend& data){   
     for (int index=0;index<NUMBER_PIECES;++index){
     	packet << data.posX[index];
     }
     for (int index=0;index<NUMBER_PIECES;++index){
     	packet << data.posY[index];
+    }
+	for (int index=0;index<NUMBER_PIECES;++index){
+    	packet << data.used[index];
     }
     return packet << data.pick;
 }

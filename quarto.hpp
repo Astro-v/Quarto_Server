@@ -27,6 +27,7 @@ class Quarto{
     bool _play;                                   // Booleen that worth true as long as no one win
     int _posX[NUMBER_PIECES];                     // Abscissa of the pieces
     int _posY[NUMBER_PIECES];                     // Ordinate of the pieces
+    bool _used[NUMBER_PIECES];                    // True if a piece is used
     int _pick;                                    // Correspond to the picked piece -1:NONE
     
     // SERVER

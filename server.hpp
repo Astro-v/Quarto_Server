@@ -13,7 +13,7 @@
 class Server {
     public:
     Server();
-    void initialize();
+    void initialize(const ToSend &data);
     int receiveData(ToReceive &data);
 	void sendData(const ToSend &data);
 
