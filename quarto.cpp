@@ -42,7 +42,7 @@ void Quarto::play(){
 				_send.pick = _pick;
 				
 				// Send updated data
-				_server.sendData(_send);
+				_server.sendData(_send,GAME_SERVER);
 			}else if (player == 2 && _status == PLAYER_2_PLACE && isPlacable(_receive.posX,_receive.posY)){
 				// Update data
 				_status = PLAYER_2_PICK;
@@ -56,14 +56,17 @@ void Quarto::play(){
 					_send.posY[index] = _posY[index];
 					_send.used[index] = _used[index];
 				}
-				if (victory(_posX[_pick],_posY[_pick])){
-					_play = false;
-				}
-				_pick = NONE;
-				_send.pick = _pick;
-
+				_send.pick = NONE;
+				
 				// Send updated data
-				_server.sendData(_send);
+				_server.sendData(_send,GAME_SERVER);
+
+				if (victory(_posX[_pick],_posX[_pick])){
+					_play = false;
+					_server.sendData(_send,WIN_P2);
+				} 
+				
+				_pick = NONE;
 			}else if (player == 2 && _status == PLAYER_2_PICK && isPickable(_receive.posX,_receive.posY)){
 				// Update data
 				_status = PLAYER_1_PLACE;
@@ -72,7 +75,7 @@ void Quarto::play(){
 				_send.pick = _pick;
 				
 				// Send updated data
-				_server.sendData(_send);
+				_server.sendData(_send,GAME_SERVER);
 			}else if (player == 1 && _status == PLAYER_1_PLACE && isPlacable(_receive.posX,_receive.posY)){
 				// Update data
 				_status = PLAYER_1_PICK;
@@ -86,14 +89,18 @@ void Quarto::play(){
 					_send.posY[index] = _posY[index];
 					_send.used[index] = _used[index];
 				}
-				if (victory(_posX[_pick],_posX[_pick])){
-					_play = false;
-				}
-				_pick = NONE;
-				_send.pick = _pick;
+
+				_send.pick = NONE;
 				
 				// Send updated data
-				_server.sendData(_send);
+				_server.sendData(_send,GAME_SERVER);
+
+				if (victory(_posX[_pick],_posX[_pick])){
+					_play = false;
+					_server.sendData(_send,WIN_P1);
+				} 
+				
+				_pick = NONE;
 			}else{
 				// Nothing to do
 			}

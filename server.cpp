@@ -63,7 +63,8 @@ void Server::initialize(const ToSend &dataS){
 		_packetR.clear();
 	}
 	
-	sendData(dataS);
+	sendData(dataS,CONNECT_SERVER);
+	sendData(dataS,GAME_SERVER);
 	_socket.setBlocking(false);
 }
 
@@ -112,24 +113,51 @@ int Server::receiveData(ToReceive &dataR, ToSend &dataS)
 }
 
 void Server::sendData(const ToSend &data, const TypeSend &typeSend){
-	_packetS.clear();
-	_packetS << typeSend << data.status << data;
-	_socket.send(_packetS, _addressPlayer[0], _portPlayer[0]);
-	_packetS.clear();
-	if (data.status == PLAYER_1_PICK){
-		_packetS << PLAYER_2_PICK;
-	}else if (data.status == PLAYER_2_PICK){
-		_packetS << PLAYER_1_PICK;
-	}else if (data.status == PLAYER_1_PLACE){
-		_packetS << PLAYER_2_PLACE;
-	}else if (data.status == PLAYER_2_PLACE){
-		_packetS << PLAYER_1_PLACE;
-	}else{
-		_packetS << data.status;
+	if (typeSend == GAME_SERVER){
+		_packetS.clear();
+		_packetS << typeSend << data.status << data;
+		_socket.send(_packetS, _addressPlayer[0], _portPlayer[0]);
+		_packetS.clear();
+		_packetS << typeSend;
+		if (data.status == PLAYER_1_PICK){
+			_packetS << PLAYER_2_PICK;
+		}else if (data.status == PLAYER_2_PICK){
+			_packetS << PLAYER_1_PICK;
+		}else if (data.status == PLAYER_1_PLACE){
+			_packetS << PLAYER_2_PLACE;
+		}else if (data.status == PLAYER_2_PLACE){
+			_packetS << PLAYER_1_PLACE;
+		}else{
+			_packetS << data.status;
+		}
+		_packetS << data;
+		_socket.send(_packetS, _addressPlayer[1], _portPlayer[1]);
+		_packetS.clear();
+	}else if (typeSend == WIN_P1){
+		_packetS.clear();
+		_packetS << WIN_P1;
+		_socket.send(_packetS, _addressPlayer[0], _portPlayer[0]);
+		_packetS.clear();
+		_packetS << WIN_P2;
+		_socket.send(_packetS, _addressPlayer[1], _portPlayer[1]);
+		_packetS.clear();
+	}else if (typeSend == WIN_P2){
+		_packetS.clear();
+		_packetS << WIN_P2;
+		_socket.send(_packetS, _addressPlayer[0], _portPlayer[0]);
+		_packetS.clear();
+		_packetS << WIN_P1;
+		_socket.send(_packetS, _addressPlayer[1], _portPlayer[1]);
+		_packetS.clear();
+	}else if (typeSend == CONNECT_SERVER){
+		_packetS.clear();
+		_packetS << CONNECT_SERVER << _namePlayer[1];
+		_socket.send(_packetS, _addressPlayer[0], _portPlayer[0]);
+		_packetS.clear();
+		_packetS << CONNECT_SERVER << _namePlayer[0];
+		_socket.send(_packetS, _addressPlayer[1], _portPlayer[1]);
+		_packetS.clear();
 	}
-	_packetS << data;
-	_socket.send(_packetS, _addressPlayer[1], _portPlayer[1]);
-	_packetS.clear();
 }
 
 bool Server::unregistred(sf::IpAddress address, unsigned short port){
