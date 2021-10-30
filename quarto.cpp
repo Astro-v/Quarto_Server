@@ -61,7 +61,7 @@ void Quarto::play(){
 				// Send updated data
 				_server.sendData(_send,GAME_SERVER);
 
-				if (victory(_posX[_pick],_posX[_pick])){
+				if (victory(_posX[_pick],_posY[_pick])){
 					_play = false;
 					_server.sendData(_send,WIN_P2);
 				} 
@@ -95,7 +95,7 @@ void Quarto::play(){
 				// Send updated data
 				_server.sendData(_send,GAME_SERVER);
 
-				if (victory(_posX[_pick],_posX[_pick])){
+				if (victory(_posX[_pick],_posY[_pick])){
 					_play = false;
 					_server.sendData(_send,WIN_P1);
 				} 

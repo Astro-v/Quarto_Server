@@ -24,12 +24,12 @@ protected:
 
 private:
     sf::UdpSocket _socket;
-	sf::Packet _packetR;          // packet to receive
-	sf::Packet _packetS;          // packet to send
+	sf::Packet _packetR;                       // packet to receive
+	sf::Packet _packetS;                       // packet to send
 	TypeReceive _typeReceive;
-    unsigned short _lastPort;
-	sf::IpAddress _lastAddress; // For the last sender
-	std::string _lastName;
+    unsigned short _lastPort;                  // For the last sender
+	sf::IpAddress _lastAddress;                // For the last sender
+	std::string _lastName;                     // For the last sender
 	std::vector<sf::IpAddress> _addressPlayer;
 	std::vector<unsigned short> _portPlayer;
 	std::vector<std::string> _namePlayer;

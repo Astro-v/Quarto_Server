@@ -113,6 +113,7 @@ int Server::receiveData(ToReceive &dataR, ToSend &dataS)
 }
 
 void Server::sendData(const ToSend &data, const TypeSend &typeSend){
+	std::cout << typeSend << std::endl;
 	if (typeSend == GAME_SERVER){
 		_packetS.clear();
 		_packetS << typeSend << data.status << data;
@@ -151,10 +152,10 @@ void Server::sendData(const ToSend &data, const TypeSend &typeSend){
 		_packetS.clear();
 	}else if (typeSend == CONNECT_SERVER){
 		_packetS.clear();
-		_packetS << CONNECT_SERVER << _namePlayer[1];
+		_packetS << typeSend << _namePlayer[1];
 		_socket.send(_packetS, _addressPlayer[0], _portPlayer[0]);
 		_packetS.clear();
-		_packetS << CONNECT_SERVER << _namePlayer[0];
+		_packetS << typeSend << _namePlayer[0];
 		_socket.send(_packetS, _addressPlayer[1], _portPlayer[1]);
 		_packetS.clear();
 	}
@@ -188,7 +189,7 @@ sf::Packet& operator <<(sf::Packet& packet, const ToSend& data){
 sf::Packet& operator <<(sf::Packet& packet, const TypeSend& data){   
 	int send;
 	send = (int)data;
-    return packet << data;
+    return packet << send;
 }
 
 sf::Packet& operator >>(sf::Packet& packet, ToReceive& data){
