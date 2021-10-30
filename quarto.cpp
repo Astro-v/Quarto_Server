@@ -32,8 +32,8 @@ void Quarto::play(){
     while (_play){
 
 		// Receive data
-		int player(_server.receiveData(_receive));
-		if (player != 0){
+		int player(_server.receiveData(_receive, _send));
+		if (player == 1 || player == 2){
 			if (player == 1 && _status == PLAYER_1_PICK && isPickable(_receive.posX,_receive.posY)){
 				// Update data
 				_status = PLAYER_2_PLACE;

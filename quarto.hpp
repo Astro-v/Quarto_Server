@@ -3,6 +3,7 @@
 
 /*---- LIBRARY ----*/
 #include <iostream>
+#include <string>
 
 /*---- LIBRARY SFML ----*/
 
@@ -35,7 +36,9 @@ class Quarto{
     bool _used[NUMBER_PIECES];                    // True if a piece is used
     int _pieces[NUMBER_ROW][NUMBER_COLUMN];       // Stock the placed pieces
     int _pick;                                    // Correspond to the picked piece -1:NONE
-    
+    std::string _nameP1;
+    std::string _nameP2;
+
     // SERVER
     Server _server;                               // Server that allow to communicate with client
     ToReceive _receive;              
