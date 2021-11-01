@@ -78,39 +78,21 @@ void Server::initialize(const ToSend &dataS){
 				}
 			break;
 		}
-	}
-	/*while (_nbrPlayer < 2){
-		_packetR.clear();
-		if (_socket.receive(_packetR,_lastAddress,_lastPort) == sf::Socket::Done){
-			_packetR >> _typeReceive;
-			if (_typeReceive == CONNECT_CLIENT && unregistred(_lastAddress,_lastPort)){
-				++_nbrPlayer;
-				int index = 0;
-				if (_addressPlayer[index] != sf::IpAddress("0.0.0.0") || _portPlayer[index] != 0){
-					++index;
+		for (int index=0;index<2 && (_addressPlayer[index] != sf::IpAddress("0.0.0.0") || _portPlayer[index] != 0);++index){
+			if (_socket[index].receive(_packetR) == sf::Socket::Done){
+				_packetR >> _typeReceive;
+				if (_typeReceive == LEAVE){
+					--_nbrPlayer;
+					std::cout << _namePlayer[index] << " disconected" << std::endl << "Only " << _nbrPlayer << " player left " << std::endl;
+					_addressPlayer[index] = sf::IpAddress("0.0.0.0");
+					_portPlayer[index] = 0;
+					_namePlayer[index] = "unknown";
+					_socket[index].disconnect();
 				}
-				_portPlayer[index] = _lastPort;
-				_addressPlayer[index] = _lastAddress;
-				_packetR >> _lastName;
-				_namePlayer[index] = _lastName;
-				std::cout << _nbrPlayer << " players connected" << std::endl << "Last connected : " << _lastName << std::endl;
-				std::cout << "Ip address : " << _lastAddress << std::endl << "Port : " << _lastPort << std::endl << std::endl;
-			}else if (_typeReceive == LEAVE && !unregistred(_lastAddress,_lastPort)){
-				--_nbrPlayer;
-				int index = 0;
-				while (_addressPlayer[index] != _lastAddress || _portPlayer[index] != _lastPort){
-					++index;
-				}
-				std::cout << _namePlayer[index] << " disconected" << std::endl << "Only " << _nbrPlayer << " player left " << std::endl << std::endl;
-				_addressPlayer[index] = sf::IpAddress("0.0.0.0");
-				_portPlayer[index] = 0;
-				_namePlayer[index] = "unknown";
 			}
-		}else{
-			// error ...
 		}
-		_packetR.clear();
-	}*/
+
+	}
 
 	sendData(dataS,CONNECT_SERVER);
 	sendData(dataS,GAME_SERVER);
@@ -139,7 +121,7 @@ int Server::receiveData(ToReceive &dataR, ToSend &dataS)
 				return index+1;
 			}else if (_typeReceive == LEAVE){
 				--_nbrPlayer;
-				std::cout << _namePlayer[index] << " disconected" << std::endl << "Only " << _nbrPlayer << " player left " << std::endl << std::endl;
+				std::cout << _namePlayer[index] << " disconected" << std::endl << "Only " << _nbrPlayer << " player left " << std::endl;
 				_addressPlayer[index] = sf::IpAddress("0.0.0.0");
 				_portPlayer[index] = 0;
 				_namePlayer[index] = "unknown";
