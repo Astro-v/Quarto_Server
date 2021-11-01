@@ -26,7 +26,7 @@ enum Status{
 
 /*---- TO SEND ----*/
 enum TypeSend{
-    CONNECT_SERVER, GAME_SERVER, WIN_P1, WIN_P2
+    CONNECT_SERVER, GAME_SERVER, WIN_P1, WIN_P2, NOTHING
 };
 
 struct ToSend{

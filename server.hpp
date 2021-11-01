@@ -15,6 +15,7 @@
 class Server {
 public:
     Server();
+	~Server();
     void initialize(const ToSend &data);
     int receiveData(ToReceive &dataR, ToSend &dataS);
 	void sendData(const ToSend &data, const TypeSend &typeSend);
@@ -23,7 +24,8 @@ protected:
 	bool unregistred(sf::IpAddress address, unsigned short port);
 
 private:
-    sf::UdpSocket _socket;
+	sf::TcpListener _listener;
+    sf::TcpSocket _socket[2];
 	sf::Packet _packetR;                       // packet to receive
 	sf::Packet _packetS;                       // packet to send
 	TypeReceive _typeReceive;

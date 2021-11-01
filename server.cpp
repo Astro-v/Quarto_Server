@@ -11,9 +11,7 @@
 #include "server.hpp"
 
 Server::Server():_nbrPlayer(0){
-	if (_socket.bind(SERVER_PORT,SERVER_ADRESS) != sf::Socket::Done){
-    	// error...
-	}
+	_listener.listen(SERVER_PORT);
 	_addressPlayer.push_back(sf::IpAddress("0.0.0.0"));
 	_addressPlayer.push_back(sf::IpAddress("0.0.0.0"));
 	_portPlayer.push_back(0);
@@ -24,13 +22,64 @@ Server::Server():_nbrPlayer(0){
 	_packetS.clear();
 }
 
+Server::~Server(){
+	_listener.close();
+	for (int index=0;index<2 && (_addressPlayer[index] != sf::IpAddress("0.0.0.0") || _portPlayer[index] != 0);++index){
+		_socket[index].disconnect();
+	}
+}
+
 /*
 Wait until the two player connect to the server
 */
 void Server::initialize(const ToSend &dataS){
-	std::cout << "waiting for 2 players ..." << std::endl << std::endl;
-	_socket.setBlocking(true);
-	while (_nbrPlayer<2){
+	std::cout << "Waiting for player" << std::endl;
+	_socket[0].setBlocking(true);
+	_socket[1].setBlocking(true);
+	while (_nbrPlayer < 2){
+		switch (_nbrPlayer){
+			case 0:
+				if (_listener.accept(_socket[0]) == sf::Socket::Done)
+				{
+					// A new client just connected!
+					++_nbrPlayer;
+					_addressPlayer[0] = _socket[0].getRemoteAddress();
+					_portPlayer[0] = _socket[0].getRemotePort();
+					_packetR.clear();
+					_socket[0].receive(_packetR);
+					_packetR >> _typeReceive;
+					if (_typeReceive == CONNECT_CLIENT){
+						_packetR >> _namePlayer[0];
+					}
+					_packetR.clear();
+					std::cout << _nbrPlayer << " connected ---- New connected : (address)" << _addressPlayer[0] << " (port)" << _portPlayer[0] << " (name)" << _namePlayer[0] << std::endl;				
+				}
+			break;
+			case 1:
+				int index = 0;
+				if (_addressPlayer[index] != sf::IpAddress("0.0.0.0") || _portPlayer[index] != 0){
+					++index;
+				}
+				if (_listener.accept(_socket[index]) == sf::Socket::Done)
+				{
+					// A new client just connected!
+					++_nbrPlayer;
+					_addressPlayer[index] = _socket[index].getRemoteAddress();
+					_portPlayer[index] = _socket[index].getRemotePort();
+					
+					_packetR.clear();
+					_socket[index].receive(_packetR);
+					_packetR >> _typeReceive;
+					if (_typeReceive == CONNECT_CLIENT){
+						_packetR >> _namePlayer[index];
+					}
+					_packetR.clear();
+					std::cout << _nbrPlayer << " connected ---- New connected : (address)" << _addressPlayer[index] << " (port)" << _portPlayer[index] << " (name)" << _namePlayer[index] << std::endl;
+				}
+			break;
+		}
+	}
+	/*while (_nbrPlayer < 2){
 		_packetR.clear();
 		if (_socket.receive(_packetR,_lastAddress,_lastPort) == sf::Socket::Done){
 			_packetR >> _typeReceive;
@@ -61,11 +110,13 @@ void Server::initialize(const ToSend &dataS){
 			// error ...
 		}
 		_packetR.clear();
-	}
-	
+	}*/
+
 	sendData(dataS,CONNECT_SERVER);
 	sendData(dataS,GAME_SERVER);
-	_socket.setBlocking(false);
+	_socket[0].setBlocking(false);
+	_socket[1].setBlocking(false);
+	std::cout << "Start playing" << std::endl;
 }
 
 /*
@@ -78,46 +129,33 @@ Return :
 int Server::receiveData(ToReceive &dataR, ToSend &dataS)
 {
 	_packetR.clear();
-	if (_socket.receive(_packetR,_lastAddress,_lastPort) == sf::Socket::Done)
-	{
-		_packetR >> _typeReceive;
-		if (_typeReceive == GAME_CLIENT){
-			_packetR >> dataR;
-			_packetR.clear();
-			if (_lastAddress == _addressPlayer[0] && _lastPort == _portPlayer[0]){
-				return 1;
-			}else if (_lastAddress == _addressPlayer[1] && _lastPort == _portPlayer[1]){
-				return 2;
-			}else{
-				// Not the good sender
-				return -1;
+	for (int index=0;index<2;++index){
+		if (_socket[index].receive(_packetR) == sf::Socket::Done)
+		{
+			_packetR >> _typeReceive;
+			if (_typeReceive == GAME_CLIENT){
+				_packetR >> dataR;
+				_packetR.clear();
+				return index+1;
+			}else if (_typeReceive == LEAVE){
+				--_nbrPlayer;
+				std::cout << _namePlayer[index] << " disconected" << std::endl << "Only " << _nbrPlayer << " player left " << std::endl << std::endl;
+				_addressPlayer[index] = sf::IpAddress("0.0.0.0");
+				_portPlayer[index] = 0;
+				_namePlayer[index] = "unknown";
+				_socket[index].disconnect();
+				initialize(dataS);
 			}
-		}else if (_typeReceive == LEAVE){
-			--_nbrPlayer;
-			int index = 0;
-			while (_addressPlayer[index] != _lastAddress || _portPlayer[index] != _lastPort){
-				++index;
-			}
-			std::cout << _namePlayer[index] << " disconected" << std::endl << "Only " << _nbrPlayer << " player left " << std::endl << std::endl;
-			_addressPlayer[index] = sf::IpAddress("0.0.0.0");
-			_portPlayer[index] = 0;
-			_namePlayer[index] = "unknown";
-			initialize(dataS);
-			return 0;
-		}else{
-			return 0;
 		}
-	}else{
-		return 0; // No data received
 	}
+	return 0; // No data received
 }
 
 void Server::sendData(const ToSend &data, const TypeSend &typeSend){
-	std::cout << typeSend << std::endl;
 	if (typeSend == GAME_SERVER){
 		_packetS.clear();
 		_packetS << typeSend << data.status << data;
-		_socket.send(_packetS, _addressPlayer[0], _portPlayer[0]);
+		_socket[0].send(_packetS);
 		_packetS.clear();
 		_packetS << typeSend;
 		if (data.status == PLAYER_1_PICK){
@@ -132,31 +170,31 @@ void Server::sendData(const ToSend &data, const TypeSend &typeSend){
 			_packetS << data.status;
 		}
 		_packetS << data;
-		_socket.send(_packetS, _addressPlayer[1], _portPlayer[1]);
+		_socket[1].send(_packetS);
 		_packetS.clear();
 	}else if (typeSend == WIN_P1){
 		_packetS.clear();
 		_packetS << WIN_P1;
-		_socket.send(_packetS, _addressPlayer[0], _portPlayer[0]);
+		_socket[0].send(_packetS);
 		_packetS.clear();
 		_packetS << WIN_P2;
-		_socket.send(_packetS, _addressPlayer[1], _portPlayer[1]);
+		_socket[1].send(_packetS);
 		_packetS.clear();
 	}else if (typeSend == WIN_P2){
 		_packetS.clear();
 		_packetS << WIN_P2;
-		_socket.send(_packetS, _addressPlayer[0], _portPlayer[0]);
+		_socket[0].send(_packetS);
 		_packetS.clear();
 		_packetS << WIN_P1;
-		_socket.send(_packetS, _addressPlayer[1], _portPlayer[1]);
+		_socket[1].send(_packetS);
 		_packetS.clear();
 	}else if (typeSend == CONNECT_SERVER){
 		_packetS.clear();
 		_packetS << typeSend << _namePlayer[1];
-		_socket.send(_packetS, _addressPlayer[0], _portPlayer[0]);
+		_socket[0].send(_packetS);
 		_packetS.clear();
 		_packetS << typeSend << _namePlayer[0];
-		_socket.send(_packetS, _addressPlayer[1], _portPlayer[1]);
+		_socket[1].send(_packetS);
 		_packetS.clear();
 	}
 }

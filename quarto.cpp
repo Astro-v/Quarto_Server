@@ -26,9 +26,7 @@ Quarto::Quarto():_status(PLAYER_1_PICK),_play(true),_pick(NONE){
 }
 
 void Quarto::play(){
-    std::cout << "Initializing server ..." << std::endl;
     _server.initialize(_send);
-	std::cout << "Starting ..." << std::endl;
     while (_play){
 
 		// Receive data
